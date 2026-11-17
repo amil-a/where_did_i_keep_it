@@ -15,9 +15,25 @@
           {% endif %}
 
           {% for field in form %}
-            <div class="mb-3">
+            <div class="mb-3{% if field.name == 'description' %} stt-field{% endif %}">
               <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-              {{ field }}
+
+              {% if field.name == "description" %}
+                <div class="stt-row">
+                  {{ field }}
+                  <button type="button" class="stt-btn"
+                          data-stt-target="{{ field.id_for_label }}"
+                          data-stt-lang="en-US"
+                          aria-label="Start voice input" aria-pressed="false"
+                          title="Start voice input">
+                    <i class="bi bi-mic-fill" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div class="stt-status"></div>
+              {% else %}
+                {{ field }}
+              {% endif %}
+
               {% for error in field.errors %}
                 <div class="text-danger small mt-1">{{ error }}</div>
               {% endfor %}
