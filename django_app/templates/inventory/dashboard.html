@@ -1,61 +1,113 @@
 {% extends "base.html" %}
-{% block title %}Dashboard · Where Did I Keep It?{% endblock %}
+{% block title %}Where Did I Keep It? · Remember where everything lives{% endblock %}
 
 {% block content %}
-<div class="row g-3 mb-4">
-  <div class="col-12 col-md-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-body">
-        <div class="text-muted">Items stored</div>
-        <div class="display-5 fw-semibold">{{ total_items }}</div>
-      </div>
+<section class="hero">
+  <div class="row align-items-center g-4 g-lg-5">
+    <div class="col-lg-6">
+      <h1 class="hero-title">Everything has a place. <span class="hero-accent">Remember where.</span></h1>
+      <p class="hero-lead">Keep track of the little things you put away and can never seem to find.</p>
+
+      {# Uses the existing search view, which calls the FastAPI service. #}
+      <form action="{% url 'search' %}" method="get" id="search-form" class="search-pill" role="search">
+        <label for="hero-query" class="visually-hidden">Describe what you are looking for</label>
+        <input id="hero-query" type="search" name="query" maxlength="300" required
+               placeholder="Describe it, e.g. “the black cable for my monitor”">
+        <button type="submit" class="btn btn-primary" id="search-button" aria-label="Search">
+          <span class="spinner-border spinner-border-sm d-none" id="search-spinner" aria-hidden="true"></span>
+          <i class="bi bi-search" id="search-icon"></i>
+          <span class="d-none d-sm-inline ms-1">Search</span>
+        </button>
+      </form>
+      <p class="small text-muted mt-2 mb-3">Describe it however you remember it. You don't need the exact name.</p>
+
+      <a href="{% url 'item_create' %}" class="btn btn-outline-secondary btn-lg"><i class="bi bi-plus-circle"></i> Add Item</a>
+    </div>
+
+    <div class="col-lg-6">
+      <svg class="hero-art" viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <circle cx="240" cy="205" r="172" fill="#F0E6D0"/>
+        <ellipse cx="240" cy="372" rx="160" ry="11" fill="#5C4333" opacity=".12"/>
+
+        <!-- sparkles -->
+        <circle cx="84" cy="170" r="5" fill="#C4704F" opacity=".5"/>
+        <circle cx="64" cy="230" r="3.5" fill="#5E7052" opacity=".5"/>
+        <circle cx="426" cy="120" r="5" fill="#5E7052" opacity=".5"/>
+        <circle cx="448" cy="190" r="3.5" fill="#C4704F" opacity=".5"/>
+
+        <!-- chest of drawers -->
+        <rect x="132" y="336" width="16" height="32" rx="4" fill="#7A5C45"/>
+        <rect x="332" y="336" width="16" height="32" rx="4" fill="#7A5C45"/>
+        <rect x="108" y="128" width="264" height="214" rx="14" fill="#A9835F"/>
+        <rect x="98" y="116" width="284" height="22" rx="9" fill="#8C6A4A"/>
+
+        <rect x="126" y="150" width="228" height="54" rx="9" fill="#C9A27A"/>
+        <rect x="126" y="212" width="228" height="54" rx="9" fill="#C9A27A"/>
+        <rect x="126" y="274" width="228" height="54" rx="9" fill="#C9A27A"/>
+
+        <rect x="222" y="171" width="36" height="9" rx="4.5" fill="#7A5C45"/>
+        <rect x="222" y="233" width="36" height="9" rx="4.5" fill="#7A5C45"/>
+        <rect x="222" y="295" width="36" height="9" rx="4.5" fill="#7A5C45"/>
+
+        <!-- drawer labels -->
+        <rect x="140" y="162" width="46" height="26" rx="5" fill="#FAF6EE"/>
+        <rect x="147" y="170" width="32" height="4" rx="2" fill="#C4704F"/>
+        <rect x="147" y="178" width="22" height="4" rx="2" fill="#B9AD98"/>
+        <rect x="140" y="224" width="46" height="26" rx="5" fill="#FAF6EE"/>
+        <rect x="147" y="232" width="32" height="4" rx="2" fill="#5E7052"/>
+        <rect x="147" y="240" width="22" height="4" rx="2" fill="#B9AD98"/>
+        <rect x="140" y="286" width="46" height="26" rx="5" fill="#FAF6EE"/>
+        <rect x="147" y="294" width="32" height="4" rx="2" fill="#C4704F"/>
+        <rect x="147" y="302" width="22" height="4" rx="2" fill="#B9AD98"/>
+
+        <!-- books -->
+        <rect x="130" y="94" width="64" height="22" rx="3" fill="#5E7052"/>
+        <rect x="136" y="101" width="52" height="3" rx="1.5" fill="#FAF6EE" opacity=".6"/>
+        <rect x="138" y="72" width="52" height="22" rx="3" fill="#E8DCC6"/>
+        <rect x="144" y="79" width="40" height="3" rx="1.5" fill="#C4704F" opacity=".7"/>
+
+        <!-- plant -->
+        <ellipse cx="322" cy="54" rx="9" ry="26" fill="#5E7052"/>
+        <ellipse cx="304" cy="62" rx="8" ry="22" fill="#738863" transform="rotate(-30 304 62)"/>
+        <ellipse cx="340" cy="62" rx="8" ry="22" fill="#738863" transform="rotate(30 340 62)"/>
+        <path d="M302 82h40l-4 34h-32z" fill="#C4704F"/>
+
+        <!-- magnifying glass -->
+        <circle cx="372" cy="268" r="38" fill="#FAF6EE" fill-opacity=".55" stroke="#C4704F" stroke-width="9"/>
+        <line x1="400" y1="296" x2="432" y2="328" stroke="#C4704F" stroke-width="13" stroke-linecap="round"/>
+      </svg>
     </div>
   </div>
-  <div class="col-12 col-md-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-body">
-        <div class="text-muted">Categories</div>
-        <div class="display-5 fw-semibold">{{ category_count }}</div>
-      </div>
-    </div>
+</section>
+
+<section class="mt-4">
+  <div class="section-heading">
+    <h2 class="h3 mb-0">Recently added</h2>
+    {% if recent_items %}<a href="{% url 'item_list' %}" class="fw-bold">See all my items <i class="bi bi-arrow-right"></i></a>{% endif %}
   </div>
-</div>
 
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="h5">Lost something?</h2>
-    <form action="{% url 'search' %}" method="get" class="row g-2">
-      <div class="col-12 col-md">
-        <input type="text" name="query" class="form-control form-control-lg" placeholder="Describe it in your own words…" required>
-      </div>
-      <div class="col-12 col-md-auto">
-        <button class="btn btn-primary btn-lg w-100" type="submit"><i class="bi bi-search"></i> Search</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="d-flex justify-content-between align-items-center mb-2">
-  <h2 class="h5 mb-0">Recently added</h2>
-  <a href="{% url 'item_list' %}" class="small">View all</a>
-</div>
-
-{% if recent_items %}
-  <div class="list-group shadow-sm">
-    {% for item in recent_items %}
-      <a href="{% url 'item_detail' item.pk %}" class="list-group-item list-group-item-action">
-        <div class="d-flex justify-content-between">
-          <strong>{{ item.name }}</strong>
-          <span class="badge text-bg-secondary">{{ item.category }}</span>
+  {% if recent_items %}
+    <div class="row g-3">
+      {% for item in recent_items %}
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card item-card">
+            <div class="card-body">
+              <span class="badge text-bg-secondary mb-2">{{ item.category }}</span>
+              <h3 class="card-title"><a href="{% url 'item_detail' item.pk %}" class="stretched-link">{{ item.name }}</a></h3>
+              <p class="item-desc mb-3">{{ item.description }}</p>
+              <div class="item-location"><i class="bi bi-geo-alt-fill"></i> {{ item.location }}</div>
+            </div>
+          </div>
         </div>
-        <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ item.location }}</div>
-      </a>
-    {% endfor %}
-  </div>
-{% else %}
-  <div class="card text-center p-5 shadow-sm">
-    <p class="mb-3 text-muted">Nothing saved yet. Add your first item so you can find it later.</p>
-    <div><a href="{% url 'item_create' %}" class="btn btn-primary">Add your first item</a></div>
-  </div>
-{% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
+      <h3 class="h4">Your shelves are empty for now</h3>
+      <p class="text-muted mb-4">Next time you tuck something away, jot down where it went. Future you will be grateful.</p>
+      <a href="{% url 'item_create' %}" class="btn btn-primary btn-lg"><i class="bi bi-plus-lg"></i> Add your first item</a>
+    </div>
+  {% endif %}
+</section>
 {% endblock %}

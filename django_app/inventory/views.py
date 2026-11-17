@@ -10,13 +10,9 @@ from .models import Item
 
 
 def dashboard(request):
-    recent_items = Item.objects.all()[:5]
-    context = {
-        "total_items": Item.objects.count(),
-        "category_count": Item.objects.values("category").distinct().count(),
-        "recent_items": recent_items,
-    }
-    return render(request, "inventory/dashboard.html", context)
+    # The home page shows recent items only (6 fills two clean rows of three).
+    recent_items = Item.objects.all()[:6]
+    return render(request, "inventory/dashboard.html", {"recent_items": recent_items})
 
 
 def item_list(request):
