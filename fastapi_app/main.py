@@ -1,12 +1,13 @@
-"""FastAPI search service for "Where Did I Keep It?"."""
+"""FastAPI service for "Where Did I Keep It?": fuzzy search + voice-transcript extraction."""
 from typing import Optional
 
 from fastapi import FastAPI, Query
 
-from schemas import SearchRequest, SearchResponse
+from extractor import extract_item
+from schemas import ExtractRequest, ExtractResponse, SearchRequest, SearchResponse
 from search_engine import DEFAULT_THRESHOLD, search_items
 
-app = FastAPI(title="Where Did I Keep It? - Search Service", version="1.0.0")
+app = FastAPI(title="Where Did I Keep It? - Search Service", version="1.1.0")
 
 
 @app.get("/health")
@@ -25,3 +26,10 @@ def search(
 ):
     cutoff = DEFAULT_THRESHOLD if threshold is None else threshold
     return SearchResponse(results=search_items(payload.query, payload.items, cutoff))
+
+
+@app.post("/extract-item", response_model=ExtractResponse)
+def extract(payload: ExtractRequest):
+    """Turn a spoken sentence into name / description / category / location.
+    Unknown fields come back as empty strings; nothing is invented."""
+    return ExtractResponse(**extract_item(payload.transcript, payload.categories))

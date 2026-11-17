@@ -1,59 +1,105 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}{{ title }} · Where Did I Keep It?{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-12 col-lg-8">
     <h1 class="h3 mb-3">{{ title }}</h1>
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <form method="post" novalidate>
-          {% csrf_token %}
 
-          {% if form.non_field_errors %}
-            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-          {% endif %}
+    {% if not item %}
+    <section id="voice-panel" class="card voice-panel mb-4"
+             data-extract-url="{% url 'extract_item' %}" data-lang="en-US">
+      <div class="card-body text-center p-4 p-md-5">
+        <h2 class="h4 mb-2">Tell us what you put away and where you kept it.</h2>
+        <p class="text-muted mb-4">For example: &ldquo;I have stored my key in the drawer in the bedroom.&rdquo;</p>
 
-          {% for field in form %}
-            <div class="mb-3{% if field.name == 'description' %} stt-field{% endif %}">
-              <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+        <button type="button" id="vo-mic" class="vo-mic" aria-label="Start speaking" aria-pressed="false">
+          <i class="bi bi-mic-fill" aria-hidden="true"></i>
+        </button>
+        <div id="vo-status" class="vo-status" aria-live="polite"></div>
 
-              {% if field.name == "description" %}
-                <div class="stt-row">
+        <label for="vo-transcript" class="visually-hidden">What you said</label>
+        <textarea id="vo-transcript" class="form-control" rows="3"
+                  placeholder="Your words will appear here as you speak. You can also type or edit them."></textarea>
+
+        <div id="vo-error" class="alert alert-danger text-start mt-3 d-none" role="alert"></div>
+
+        <div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
+          <button type="button" id="vo-stop" class="btn btn-outline-secondary" disabled>
+            <i class="bi bi-stop-circle"></i> Stop
+          </button>
+          <button type="button" id="vo-process" class="btn btn-primary">
+            <span id="vo-spinner" class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+            Fill the form
+          </button>
+        </div>
+
+        <hr class="my-4">
+        <button type="button" id="vo-manual" class="btn btn-link text-decoration-none">
+          <i class="bi bi-pencil"></i> Prefer to type it? Enter details manually
+        </button>
+      </div>
+    </section>
+    {% endif %}
+
+    <div id="item-form-wrap" class="{% if not item and not form.is_bound %}d-none{% endif %}">
+      <div id="vo-review-note" class="alert alert-success d-none" role="status">
+        We filled this in from what you said. Please check every field before saving.
+        Highlighted fields need your attention.
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+              <div class="mb-3{% if field.name == 'description' %} stt-field{% endif %}">
+                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+
+                {% if field.name == "description" %}
+                  <div class="stt-row">
+                    {{ field }}
+                    <button type="button" class="stt-btn"
+                            data-stt-target="{{ field.id_for_label }}"
+                            data-stt-lang="en-US"
+                            aria-label="Start voice input" aria-pressed="false"
+                            title="Start voice input">
+                      <i class="bi bi-mic-fill" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <div class="stt-status"></div>
+                {% else %}
                   {{ field }}
-                  <button type="button" class="stt-btn"
-                          data-stt-target="{{ field.id_for_label }}"
-                          data-stt-lang="en-US"
-                          aria-label="Start voice input" aria-pressed="false"
-                          title="Start voice input">
-                    <i class="bi bi-mic-fill" aria-hidden="true"></i>
-                  </button>
-                </div>
-                <div class="stt-status"></div>
-              {% else %}
-                {{ field }}
-              {% endif %}
+                {% endif %}
 
-              {% for error in field.errors %}
-                <div class="text-danger small mt-1">{{ error }}</div>
-              {% endfor %}
-              {% if field.help_text %}
-                <div class="form-text">{{ field.help_text }}</div>
-              {% endif %}
+                {% for error in field.errors %}
+                  <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+                {% if field.help_text %}
+                  <div class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+
+            <datalist id="category-options">
+              {% for c in categories %}<option value="{{ c }}">{% endfor %}
+            </datalist>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">Save Item</button>
+              <a href="{% if item %}{% url 'item_detail' item.pk %}{% else %}{% url 'item_list' %}{% endif %}" class="btn btn-outline-secondary">Cancel</a>
             </div>
-          {% endfor %}
-
-          <datalist id="category-options">
-            {% for c in categories %}<option value="{{ c }}">{% endfor %}
-          </datalist>
-
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="{% if item %}{% url 'item_detail' item.pk %}{% else %}{% url 'item_list' %}{% endif %}" class="btn btn-outline-secondary">Cancel</a>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<script src="{% static 'js/voice_entry.js' %}" defer></script>
 {% endblock %}
