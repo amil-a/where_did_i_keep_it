@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+rapidfuzz
+pydantic
+httpx  # only needed for test_search.py
