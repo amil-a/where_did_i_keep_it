@@ -121,7 +121,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # Where the Django app sends search requests (the FastAPI service).
 FASTAPI_SEARCH_URL = "http://127.0.0.1:8001/search"
 FASTAPI_TIMEOUT_SECONDS = 10
-
+FASTAPI_EXTRACT_URL = "http://127.0.0.1:8001/extract-item"
+FASTAPI_EXTRACT_TIMEOUT_SECONDS = 20
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration

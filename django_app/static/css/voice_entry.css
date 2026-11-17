@@ -1,0 +1,29 @@
+/* Voice-first Add Item. Uses the colour variables from style.css (sage, terracotta, sand...). */
+.voice-panel { background: linear-gradient(180deg, var(--paper), var(--cream-deep)); }
+
+.vo-mic {
+  width: 104px; height: 104px; border-radius: 50%; border: 0;
+  background: var(--sage); color: #fff; font-size: 2.6rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 22px rgba(75, 92, 65, .35); cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+.vo-mic:hover:not(:disabled) { transform: scale(1.04); background: var(--sage-dark); }
+.vo-mic:focus-visible { outline: 3px solid var(--brown); outline-offset: 3px; }
+.vo-mic:disabled { opacity: .6; cursor: not-allowed; }
+.vo-mic.is-listening { background: var(--terracotta-dark); animation: vo-pulse 1.3s ease-in-out infinite; }
+
+.vo-status { min-height: 1.5em; margin: .9rem 0; color: var(--brown-dark); font-weight: 700; }
+
+/* Fields the extraction left empty or was unsure about */
+.needs-review { border-color: #d9a441 !important; background-color: #fff8e6 !important; }
+
+@keyframes vo-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(168, 90, 60, .45); }
+  70%  { box-shadow: 0 0 0 22px rgba(168, 90, 60, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(168, 90, 60, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vo-mic.is-listening { animation: none; }
+  .vo-mic { transition: none; }
+}

@@ -10,4 +10,5 @@ urlpatterns = [
     path("items/<int:pk>/edit/", views.item_update, name="item_update"),
     path("items/<int:pk>/delete/", views.item_delete, name="item_delete"),
     path("search/", views.search, name="search"),
+    path("api/extract-item/", views.extract_item, name="extract_item"),
 ]

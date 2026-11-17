@@ -1,9 +1,13 @@
+import json
+
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from .forms import ItemForm, SearchForm
 from .models import Item
@@ -181,3 +185,57 @@ def search(request):
             "has_items": Item.objects.exists(),
         },
     )
+
+
+EXTRACT_FIELDS = ("name", "description", "category", "location")
+
+
+@require_POST
+def extract_item(request):
+    """
+    Voice entry: receive a transcript from the browser, ask the FastAPI service
+    to pull out item fields, and return clean JSON for the form.
+
+    The browser never talks to FastAPI directly, so any API token stays on the
+    backend. No audio is handled here; only text.
+    """
+    try:
+        body = json.loads(request.body or b"{}")
+    except ValueError:
+        return JsonResponse({"error": "Invalid request."}, status=400)
+
+    transcript = body.get("transcript") if isinstance(body, dict) else None
+    if not isinstance(transcript, str) or not transcript.strip():
+        return JsonResponse({"error": "Please say or type something first."}, status=400)
+    transcript = transcript.strip()
+    if len(transcript) > 1000:
+        return JsonResponse(
+            {"error": "That is a bit long. Please keep it to a sentence or two."}, status=400
+        )
+
+    url = getattr(settings, "FASTAPI_EXTRACT_URL", "http://127.0.0.1:8001/extract-item")
+    timeout = getattr(settings, "FASTAPI_EXTRACT_TIMEOUT_SECONDS", 20)
+    manual = "You can enter the details manually."
+    try:
+        categories = [c for c in _category_options() if c]
+        response = requests.post(
+            url, json={"transcript": transcript, "categories": categories}, timeout=timeout
+        )
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.Timeout:
+        return JsonResponse({"error": f"The extraction service took too long. {manual}"}, status=504)
+    except requests.exceptions.ConnectionError:
+        return JsonResponse({"error": f"The extraction service is not running. {manual}"}, status=503)
+    except requests.exceptions.HTTPError:
+        return JsonResponse({"error": f"The extraction service returned an error. {manual}"}, status=502)
+    except ValueError:
+        return JsonResponse({"error": f"The extraction service sent an unreadable answer. {manual}"}, status=502)
+    except requests.exceptions.RequestException:
+        return JsonResponse({"error": f"Could not reach the extraction service. {manual}"}, status=502)
+
+    if not isinstance(data, dict):
+        return JsonResponse({"error": f"The extraction service sent an unexpected answer. {manual}"}, status=502)
+
+    clean = {k: (data[k].strip() if isinstance(data.get(k), str) else "") for k in EXTRACT_FIELDS}
+    return JsonResponse(clean)

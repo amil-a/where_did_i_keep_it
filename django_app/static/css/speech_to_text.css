@@ -1,0 +1,31 @@
+/* Microphone button + states. Append to your existing CSS (or link this file). */
+.stt-field { position: relative; }
+.stt-row { display: flex; align-items: flex-start; gap: 8px; }
+.stt-row textarea { flex: 1 1 auto; }
+
+.stt-btn {
+  flex: 0 0 auto;
+  width: 40px; height: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #c4c4c4; border-radius: 50%;
+  background: #fff; color: #333; cursor: pointer;
+}
+.stt-btn:hover { background: #f1f1f1; }
+.stt-btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.stt-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+.stt-btn.is-listening {
+  background: #dc2626; border-color: #dc2626; color: #fff;
+  animation: stt-pulse 1.2s ease-in-out infinite;
+}
+.stt-btn.is-unsupported { opacity: .5; }
+
+.stt-status { min-height: 1.2em; margin-top: 4px; font-size: .85rem; color: #555; }
+.stt-status.is-error { color: #b91c1c; }
+
+@keyframes stt-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, .5); }
+  70%  { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .stt-btn.is-listening { animation: none; } }
